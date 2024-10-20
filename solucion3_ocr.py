@@ -42,14 +42,6 @@ def limpiaString(texto):
     texto = texto.strip()
     return texto
 
-
-img_ejemplo = "01001_P_1.jpg"
-img = Image.open(os.path.join('data', img_ejemplo))
-osd = pytesseract.image_to_osd(img)
-angle = re.search('(?<=Rotate: )\d+', osd).group(0)
-img = img.rotate(int(angle))
-img.save(os.path.join(path, 'data', img_ejemplo))
-
 inicio = time.time()
 
 imgs = [i for i in os.listdir(os.path.join(path,'data')) if i.endswith(".jpg")]
@@ -72,12 +64,10 @@ print("tiempo en girar las imágenes: ", fin - inicio, " segundos")
 inicio = time.time()
 for image in imgs:
     img = Image.open(os.path.join('data', image))
-    # -c tessedit_char_whitelist=" $%,.01234456789aábcdeéfghiíjklmnñoópqrstuúvwxyzAÁBCDEÉFGHIÍJKLMNÑOÓPQRSTUÚVWXYZ"
     custom_config = r'--oem 3 --psm 6'
     txt=pytesseract.image_to_string(img, lang='spa', config=custom_config)
     text_file_name = image.split(".")[0]+".txt"
     text_file=open(os.path.join("data",text_file_name), "a")
-    #print(txt)
     text_file.write(txt)
     text_file.close()
 
@@ -137,7 +127,7 @@ exp_patterns_p1 = {
 
 #SCORE: 25.2
 pattern = re.compile(exp_patterns['nombre'])
-#df_extracted = df.diagnosis.str.extract(pat=pattern, expand=True)
+
 df['nombre'] = df['0'].str.extract(pattern)
 df['nombre'] = df['nombre'].apply(lambda x: limpiaString(str(x)))
 df['nombre'] = df['nombre'].replace({'nan':''})
@@ -149,10 +139,6 @@ df.loc[idx,'nombre'] = df.loc[idx, 'nombre'].str[:40]
 df['nombre'] = df['nombre'].str.strip()
 
 
-# df['nombre'].value_counts(dropna=False)
-# df[df['nombre']==""]['0'].str[0:300].to_list()
-# df['0'].str[0:300].to_list()
-
 #SCORE:  31.5, 33.1
 df['ciudad'] = df['0'].str.extract(exp_patterns['ciudad'])
 df['ciudad'] = df['ciudad'].apply(lambda x: limpiaString(str(x)))
@@ -162,23 +148,13 @@ df['ciudad'] = df['ciudad'].replace(regex={r'[^\w\s]|[0-9]+': ''})
 df['ciudad'] = df['ciudad'].str.strip()
 
 
-# df['ciudad'].value_counts(dropna=False)
-# df[df['ciudad']==""]['0'].str[0:300].to_list()
-# df['0'].str[0:300].to_list()
-
-#df.iloc[3,1]
-
 #SCORE:  33.7, 38.1
 df['anio'] = df['0'].str.extract(exp_patterns['anio'])
 df['anio'] = df['anio'].apply(lambda x: limpiaString(str(x)))
 df['anio'] = df['anio'].replace({'nan':''})
 df['anio'] = df['anio'].replace(regex={r'[^0-9]': ''})
 df['anio'] = df['anio'].str.strip()
-#df['0'].str[200:600].to_list()[0:20]
 
-#df.to_excel("texto.xlsx", index=False)
-
-#df['anio'].fillna(value="")
 re.findall(r"\W+", "abc — ")
 #SCORE:  29.2, 45.1
 df['mes'] = df['0'].str.extract(exp_patterns['mes'])
@@ -198,7 +174,7 @@ df['valor'] = df['valor'].replace({'nan':''})
 df['valor'] = df['valor'].replace(regex={r'[^0-9,\.]': ''})
 #limpio todo lo que esté a la izquierda y no sea un número:
 df['valor'] = df['valor'].replace(regex={r'^[^0-9]+(?=\d)': ''})
-#df['valor'] = "$ " + df['valor']
+
 
 #SCORE:  37.4, 61.9
 df['intereses'] = df['0'].str.extract(exp_patterns['intereses'])
@@ -207,7 +183,7 @@ df['intereses'] = df['intereses'].replace({'nan':''})
 df['intereses'] = df['intereses'].replace(regex={r'^[^0-9]+(?=\d)': ''})
 idx = df[df['intereses'].str.len()>15].index 
 df.loc[idx,'intereses'] = df.loc[idx, 'intereses'].str[:15]
-#df['intereses'] = "$ " + df['intereses']
+
 
 # SCORE:  38.8, 67.0
 df['tasa_intereses'] = df['0'].str.extract(exp_patterns['tasa_intereses'])
@@ -246,37 +222,6 @@ df['nombre2'] = df['nombre2'].replace({'nan':''})
 idx = df[df['nombre']==""].index 
 df.loc[idx,'nombre'] = df.loc[idx, 'nombre2']
 
-
-
-df['1'].str.findall(r'DEU.*([A-Z\s]+)Nom')[0]
-
-re.findall(exp_patterns['nombre'], df.iloc[1,1])
-
-df['ciudad'].value_counts(dropna=False)
-df['ciudad'].to_list()
-
-df[df['nombre']==""]['0'].str[0:400].to_list()
-
-df.iloc[91,1]
-df.iloc[1,1][0:300]
-df['0'].str[0:300].to_list()
-df.iloc[0,1]
-
-# Sample string
-text = "—- Barranguillaó ---- «5,.;\'"
-# Regular expression to match non-word characters
-pattern = r"[\W\d]"
-print(re.sub(pattern, "", text))
-
-# Find all non-word characters in the string
-ptr = re.compile(r'Yo,[\n\s]*(.*)[\n\s]*[TmM]ayo.*', re.MULTILINE)
-ptr.findall("\nYo, CESARE MARCELA SAMANIEGO\nPEREZ , mayor")
-re.findall(r'Yo,[\n\s]*(.*)[\n\s]*[TmM]ayo.*', "\nYo, CESARE MARCELA SAMANIEGO\nPEREZ , mayor", flags=re.DOTALL)
-re.findall(r'Yo,[\n\s]*(.*)[\n\s]*[TmM]ayo.*', "\nYo, ¡VAN ACEVEDO , Tayor de edad")
-# Output the matches
-print(matches)
-
-df['1'].str.findall(exp_patterns['nombre'])
 
 df2 = dar_formato_df(df)
 df2.to_csv("resultadoPaso3.csv", index=False, sep=";")

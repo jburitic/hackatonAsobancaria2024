@@ -179,16 +179,6 @@ df['firmado'] != ""
 df['firmado'] = df['firmado'].where(df['firmado'] != "", 0) # si diferente de vacio deja el valor de lo contrario pone 0
 df['firmado'] = df['firmado'].mask(df['firmado'] != 0, 1) # si diferente de vacio pone 1
 
-re.findall(exp_patterns_p1['tipo_documento'], df.iloc[3,2])
-
-df['1'].str.findall(exp_patterns_p1['tipo_documento'])
-
-df['1'].to_list()[2:4]
 
 df2 = dar_formato_df(df)
 df2.to_csv("resultadoPaso2.csv", index=False, sep=";")
-
-for col in exp_patterns.keys():
-    tmp = re.findall(exp_patterns[col], texto, flags = re.MULTILINE)
-
-
